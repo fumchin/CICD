@@ -1,0 +1,61 @@
+pipeline {
+    agent any  // 在任意可用的節點上運行 Pipeline
+
+    environment {
+        CC = 'clang'  // 指定使用 clang 編譯器
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // 從 GitHub 檢出代碼 (將此 URL 替換為你的 GitHub Repository)
+                git 'https://github.com/fumchin/CICD.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // 編譯主程式，確保程式碼可以正常編譯
+                sh 'make build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // 編譯並執行單元測試
+                sh 'make test'
+            }
+
+            post {
+                always {
+                    // 如果測試結果是 JUnit 格式，則 Jenkins 會解析並展示測試結果
+                    junit 'bin/test-results.xml'  // 假設測試結果輸出為 JUnit 格式
+                }
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                // 清理工作空間中的生成文件
+                sh 'make clean'
+            }
+        }
+    }
+
+    post {
+        always {
+            // 將編譯生成的工件保存到 Jenkins，以便在 Pipeline 完成後進行查看或下載
+            archiveArtifacts artifacts: 'bin/**', allowEmptyArchive: true
+        }
+
+        success {
+            // 如果成功構建並測試，輸出構建成功的訊息
+            echo 'Build and tests succeeded!'
+        }
+
+        failure {
+            // 如果構建或測試失敗，輸出錯誤訊息
+            echo 'Build or tests failed.'
+        }
+    }
+}
