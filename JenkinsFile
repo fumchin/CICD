@@ -8,8 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // 從 GitHub 檢出代碼 (將此 URL 替換為你的 GitHub Repository)
-                git 'https://github.com/fumchin/CICD.git'
+                git branch: 'main', url: 'https://github.com/fumchin/CICD.git'
             }
         }
 
